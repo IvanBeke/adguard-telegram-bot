@@ -45,10 +45,41 @@ Edita `.env` con tus datos:
 
 > **¿Cómo obtengo mi Telegram User ID?** Escríbele a [@userinfobot](https://t.me/userinfobot).
 
-### 3. Arrancar el contenedor
+
+### 3. Desplegar el contenedor
+
+#### Opción A: Construir localmente
 
 ```bash
 docker compose up -d --build
+```
+
+#### Opción B: Usar imagen preconstruida
+
+Puedes usar una imagen publicada en un registro (por ejemplo, Docker Hub o GitHub Container Registry) sin necesidad de clonar ni construir el código:
+
+1. Crea un archivo `docker-compose.yaml` como este:
+
+```yaml
+services:
+  adguard-telegram-bot:
+    image: ghcr.io/ivanbeke/adguard-telegram-bot:latest
+    container_name: adguard-telegram-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Madrid
+    volumes:
+      - ./data:/app/data
+```
+
+2. Descarga o crea el archivo `.env` con tus variables (ver sección anterior).
+
+3. Arranca el bot:
+
+```bash
+docker compose up -d
 ```
 
 Los logs pueden consultarse con:

@@ -1,6 +1,6 @@
 services:
   adguard-telegram-bot:
-    build: .
+    image: ghcr.io/ivanbeke/adguard-telegram-bot:latest
     container_name: adguard-telegram-bot
     restart: unless-stopped
     env_file:
