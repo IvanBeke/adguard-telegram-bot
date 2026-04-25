@@ -35,28 +35,17 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-_bot_instance = None
-
-
-def get_bot():
-    return _bot_instance
-
-
-async def post_init(application):
-    await application.bot.set_my_commands([
-        BotCommand("menu", "Abrir el menú principal"),
-    ])
-
 
 def main():
-    global _bot_instance
-
     scheduler.start()
     log.info("Scheduler iniciado.")
 
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-    _bot_instance = app.bot
 
+    async def post_init(application):
+        await application.bot.set_my_commands([
+            BotCommand("menu", "Abrir el menú principal"),
+        ])
 
     app.post_init = post_init
 

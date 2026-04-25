@@ -3,7 +3,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from bot.config import DB_PATH
+from telegram import Bot
+from bot.config import DB_PATH, TELEGRAM_BOT_TOKEN
 
 log = logging.getLogger(__name__)
 
@@ -30,9 +31,8 @@ def stop():
 # Función de nivel de módulo: serializable por APScheduler
 # ---------------------------------------------------------------------------
 
-async def _do_unblock(service_id: str, chat_id: int):
+async def _do_unblock(service_id: str, service_name: str, chat_id: int):
     import bot.adguard as adguard
-    from bot.main import get_bot
 
     log.info("Desbloqueando automáticamente: %s", service_id)
     try:
@@ -42,11 +42,10 @@ async def _do_unblock(service_id: str, chat_id: int):
         return
 
     try:
-        bot = get_bot()
-        if bot and chat_id:
+        async with Bot(token=TELEGRAM_BOT_TOKEN) as bot:
             await bot.send_message(
                 chat_id=chat_id,
-                text=f"🟢 *{service_id}* ha sido desbloqueado automáticamente.",
+                text=f"🟢 *{service_name}* ha sido desbloqueado automáticamente.",
                 parse_mode="Markdown",
             )
     except Exception as e:
@@ -57,7 +56,7 @@ async def _do_unblock(service_id: str, chat_id: int):
 # API pública
 # ---------------------------------------------------------------------------
 
-def schedule_unblock(service_id: str, minutes: int, chat_id: int) -> datetime:
+def schedule_unblock(service_id: str, service_name: str, minutes: int, chat_id: int) -> datetime:
     """
     Programa el desbloqueo de un servicio tras X minutos.
     Cancela cualquier job previo para el mismo servicio.
@@ -75,7 +74,7 @@ def schedule_unblock(service_id: str, minutes: int, chat_id: int) -> datetime:
         run_date=run_at,
         id=job_id,
         replace_existing=True,
-        args=[service_id, chat_id],
+        args=[service_id, service_name, chat_id],
     )
     return run_at
 

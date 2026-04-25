@@ -217,7 +217,7 @@ async def temp_block_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     try:
         all_services = adguard.get_all_services()
         name = _service_name(service_id, all_services)
-        run_at = scheduler.schedule_unblock(service_id, minutes, chat_id=q.message.chat_id)
+        run_at = scheduler.schedule_unblock(service_id, name, minutes, q.message.chat_id)
         hora = run_at.astimezone().strftime("%H:%M")
     except Exception as e:
         await q.edit_message_text(f"❌ Error al programar desbloqueo: {e}")
