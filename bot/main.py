@@ -36,6 +36,14 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+class _FilterGetUpdates(logging.Filter):
+    def filter(self, record):
+        return "getUpdates" not in record.getMessage()
+
+
+logging.getLogger("httpx").addFilter(_FilterGetUpdates())
+
+
 def main():
     scheduler.start()
     log.info("Scheduler iniciado.")
